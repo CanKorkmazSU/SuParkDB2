@@ -34,8 +34,10 @@ fun Navigation(navController: NavHostController, mainViewmodel: MainViewmodel, a
         composable(Screen.DeclareEntranceScreen.route){ // to be filled, arguments =
             DeclareEntranceScreen(
                 {navController.navigate(Screen.HomeScreen.route)},
-                {navController.navigate(Screen.ViewParkingsScreen.route)}
+                {navController.navigate(Screen.ViewParkingsScreen.route)},
+                mainViewmodel
             )
         }
+
     }
 }

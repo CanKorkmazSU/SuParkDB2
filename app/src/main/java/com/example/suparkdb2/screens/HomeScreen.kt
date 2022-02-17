@@ -33,18 +33,15 @@ fun HomeScreen(declareEntranceNavigation: ()->Unit, viewmodel: MainViewmodel){
     ){
         // this for User
         Button(onClick = { /*TODO*/ }) {
-            Text(text = "Add User")
+            Text(text = "View your cars")
         }
         Button(onClick = { /*TODO*/ }) {
-            Text(text = "AddCar")
+            Text(text = "View Your parked cars") // this
         }
         Button(onClick = { /*TODO*/ }) {
-            Text(text = "Add Parking Area")
+            Text(text = "Declare Entrance") //
         }
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = "Declare Entrance")
-        }
-        Button(onClick = { /*TODO*/ }) {
+        Button(onClick = { /*TODO*/ }){
             Text(text = "Declare Leaving")
         }
     }

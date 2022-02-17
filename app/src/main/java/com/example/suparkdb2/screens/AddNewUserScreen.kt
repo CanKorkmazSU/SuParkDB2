@@ -30,6 +30,11 @@ fun AddUserScreen(navController: NavController, viewmodel: MainViewmodel, adminV
     var surname by remember {mutableStateOf("")}
     var driversLicense by remember {mutableStateOf("")}
 
+    var isStudent by remember { mutableStateOf(true)}
+    var isOwner by remember { mutableStateOf(true)}
+    var isPersonnel by remember { mutableStateOf(false)}
+    var isFacultyMember by remember { mutableStateOf(false)}
+    var isAdmin by remember { mutableStateOf(false)}
 
     var age by remember {mutableStateOf(-1)}
     var suid by remember {mutableStateOf(-1)}
@@ -65,25 +70,25 @@ fun AddUserScreen(navController: NavController, viewmodel: MainViewmodel, adminV
             label = { Text(text = "Your Age: ") },
             onValueChange ={age =it.toInt()}
         )
-        OutlinedTextField(value = "$suid",
-            placeholder = { Text(text = "SU-ID") },
-            label = { Text(text = "Your Sabancı ID: ") },
-            onValueChange ={suid = it.toInt()}
-        )
+
         Button(
-            onClick = {adminViewmodel.
-            onAddUser(user = Users(
-                name,
-                surname,
-                driversLicense,
-                age,
-                suid,
-                true,
-                true,
-                false,
-                false,
-                false
-            ))}
+            onClick = {
+                adminViewmodel.
+                onAddUser(
+                    user = Users(
+                        name,
+                        surname,
+                        driversLicense,
+                        age,
+                        suid,
+                        true,
+                        true,
+                        false,
+                        false,
+                        false
+                    )
+                )
+            }
         ){
             Text(text = "Add User")
         }

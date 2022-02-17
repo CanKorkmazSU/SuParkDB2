@@ -1,6 +1,7 @@
 package com.example.suparkdb2.viewmodels
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -23,7 +24,7 @@ class AdminViewModel @Inject constructor(private val suParkRepository: SuParkRep
     private var allUsers: MutableStateFlow<List<Users>> = MutableStateFlow(emptyList())
     private var allCars: MutableStateFlow<List<Cars>> = MutableStateFlow(emptyList())
 
-    private var carLocation: MutableState<ParkingAreas>? = null
+    private var carLocation: MutableState<ParkingAreas?> = mutableStateOf(null)
 
     var currentAdminLoginSession: MutableLiveData<Users> = state.getLiveData("current_admin_login_session")
         set(value){
@@ -37,9 +38,17 @@ class AdminViewModel @Inject constructor(private val suParkRepository: SuParkRep
                 allUsers.value = it
             }
         }
+        viewModelScope.launch {
+            suParkRepository.getAllCars().collect{
+                allCars.value = it
+            }
+        }
     }
 
 
+    fun onAdminLogin(adminUser: Users){
+
+    }
 
     fun onAddUser(user: Users){
         suParkRepository.addUser(user)
@@ -49,10 +58,17 @@ class AdminViewModel @Inject constructor(private val suParkRepository: SuParkRep
         suParkRepository.addCar(car)
     }
 
-    suspend fun findCar(plateNO: String){
-         suParkRepository.getCarbyPlate(plateNO).collect {
-            carLocation?.value = it
+    suspend fun findCarByPlate(plateNO: String){ //first find carId from cars, then find parkId from ParkedBy, then find parkName from parkId
+        var cid: Int? = null
+        var parkId: Int? = null
+        suParkRepository.getCarbyPlate(plateNO).collect {
+            cid = it.cid
         }
-
+         suParkRepository.getLocationByCarId(cid!!).collect {
+            parkId = it
+        }
+        suParkRepository.getParkingAreaByPid(parkId!!).collect {
+            carLocation.value = it
+        }
     }
 }

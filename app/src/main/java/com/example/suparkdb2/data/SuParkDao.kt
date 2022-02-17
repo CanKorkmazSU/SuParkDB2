@@ -16,14 +16,23 @@ interface SuParkDao {
     suspend fun getAllCars(): Flow<List<Cars>>
 
     @Query("Select * from cars where plateNo= :plateno")
-    suspend fun getCarbyPlate(plateno: String): Flow<ParkingAreas>
+    suspend fun getCarbyPlate(plateno: String): Flow<Cars>
+
+    @Query("Select * from cars where cid= :cid")
+    suspend fun getCarbyCid(cid: Int): Flow<Cars>
+
 
     @Query("Select * from cars where brand= :brand")
-    suspend fun getCarsbyBrand(brand: String): Flow<List<ParkingAreas>>
+    suspend fun getCarsbyBrand(brand: String): Flow<List<Cars>>
 
     @Query("Select * from parking_areas")
     suspend fun getAllPAreas(): Flow<List<ParkingAreas>>
 
+    @Query("Select parkId from parked_by where cid = :carId")
+    suspend fun getLocationByCarId(carId: Int): Flow<Int>
+
+    @Query("Select * from parking_areas where pid =:parkId")
+    suspend fun getParkingAreaByParkId(parkId: Int): Flow<ParkingAreas>
 
     // get list of all owners with their cars
     @Transaction
@@ -44,6 +53,8 @@ interface SuParkDao {
     @Query("Select * from cars where  cars.cid in (Select cid from used_by where ownerSuId = :userSuId and cars.cid = used_by.cid)") // get a single  combinations for a single user with unique id (primary key)
     suspend fun getCarsofASingleUser(userSuId: Int): Flow<List<Cars>>
 
+    @Query("Select * from parked_by where leavingDateTime is null and cid in (Select cid From used_by where suID = :userSuId) ") // get all cars that are also used or owned by userSuId that are parked in SuCampus
+    suspend fun getAllParkedCarsBySuId(userSuId: Int): Flow<List<ParkedBy>>
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -60,4 +71,11 @@ interface SuParkDao {
 
     @Insert
     fun addParkedBy(parkedBy: ParkedBy)
+
+
+    @Delete
+    fun removeUserBySuId(suId: Int)
+
+    @Delete
+    fun removeUserBy(suId: Int)
 }

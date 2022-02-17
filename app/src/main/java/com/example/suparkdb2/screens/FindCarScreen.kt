@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 
 
 @Composable
-fun FindCarScreen(plateNO: String){
+fun FindCarScreen(plateNO: String){ // plateNo probably should be passed as argument
 
 }
 

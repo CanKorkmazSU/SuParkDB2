@@ -14,10 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import androidx.navigation.Navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.findNavController
+import com.example.suparkdb2.Navigation.Navigation
 import com.example.suparkdb2.screens.HomeScreen
 import com.example.suparkdb2.ui.theme.SuParkDBTheme
+import com.example.suparkdb2.viewmodels.AdminViewModel
 import com.example.suparkdb2.viewmodels.MainViewmodel
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
@@ -28,19 +31,21 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-
     private lateinit var navController: NavHostController
     private val mainViewModel: MainViewmodel by viewModels()
+    private val adminViewModel: AdminViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             navController = rememberNavController()
             SuParkDBTheme {
-                HomeScreen({}, mainViewModel)
+                Navigation(
+                    navController = navController,
+                    mainViewmodel = mainViewModel,
+                    adminViewModel = adminViewModel
+                )
             }
         }
-
     }
 }
