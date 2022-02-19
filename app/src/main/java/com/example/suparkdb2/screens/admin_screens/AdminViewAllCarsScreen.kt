@@ -1,4 +1,4 @@
-package com.example.suparkdb2.screens
+package com.example.suparkdb2.screens.admin_screens
 
 import androidx.compose.runtime.Composable
 import com.example.suparkdb2.viewmodels.AdminViewModel

@@ -32,6 +32,7 @@ fun RowWithDropDownMenu(
         Text("Choose Your Role in Campus",
             color = Color.Gray
         )
+
         Canvas(
             modifier = Modifier
                 .size(12.dp)

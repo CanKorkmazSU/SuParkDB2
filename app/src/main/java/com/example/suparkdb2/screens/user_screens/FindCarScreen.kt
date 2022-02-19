@@ -1,4 +1,4 @@
-package com.example.suparkdb2.screens
+package com.example.suparkdb2.screens.user_screens
 
 import androidx.compose.runtime.Composable
 

@@ -12,13 +12,11 @@ import com.example.suparkdb2.data.ParkedBy
 import com.example.suparkdb2.data.SuParkRepository
 import com.example.suparkdb2.data.Users
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlin.time.Duration
@@ -33,22 +31,46 @@ import kotlin.time.Duration
 * */
 
 @HiltViewModel
-class MainViewmodel @Inject constructor(private val suParkRepository: SuParkRepository, private val state: SavedStateHandle): ViewModel() {
+class MainViewmodel @Inject constructor(
+    private val suParkRepository: SuParkRepository,
+    private val state: SavedStateHandle
+): ViewModel() {
 
-    private var allUsers: MutableStateFlow<List<Users>> = MutableStateFlow(emptyList())
-    private var allCars: MutableStateFlow<List<Cars>> = MutableStateFlow(emptyList())
+    private var allUsers: MutableStateFlow<List<Users>> = MutableStateFlow(emptyList())// all users in the database
+    private var allCars: MutableStateFlow<List<Cars>> = MutableStateFlow(emptyList())// all cars in the database
 
-    var currentLoginSession: MutableLiveData<Users> = state.getLiveData("current_login_session")
+    /*var currentLoginSession: MutableLiveData<Users> = state.getLiveData("current_login_session")
         set(value){
             field = value
             state["current_login_session"] = value
         }
-   ;
-    val allParkedCars: MutableState<List<Cars>> = mutableStateOf(emptyList())
-    val allParkings: MutableState<List<ParkedBy>> = mutableStateOf(emptyList())
+   ;*/
+
+    private var currentUserSuId: Int? = state["current_login_suid"]
+        set(value){
+            field = value
+            state["current_login_suid"] = value
+        }
+    ;
+
+    var currentLoginSession: MutableState<Users?> = mutableStateOf(null)
     val userLoggedIn: MutableState<Boolean> = mutableStateOf(false)
 
+    val allParkedCars: MutableState<List<Cars>> = mutableStateOf(emptyList()) // all parked cars of the user
+    val allParkings: MutableState<List<ParkedBy>> = mutableStateOf(emptyList()) // all parkings of the user
+
+
     init {
+        currentUserSuId?.let { getCurrentUser(it) }
+
+        userLoggedIn.value = currentLoginSession.value != null
+
+        if(userLoggedIn.value){
+            viewModelScope.launch {
+                findAllParkings()
+                fetchAllActiveParkings() // actually fetchALlActiveParkings does redundant fetching, can be simplified by using allParkings from findAllPaekings()
+            }
+        }
         viewModelScope.launch {
             suParkRepository.getAllUsers().collect {
                 allUsers.value = it
@@ -58,6 +80,23 @@ class MainViewmodel @Inject constructor(private val suParkRepository: SuParkRepo
             suParkRepository.getAllCars().collect{
                 allCars.value = it
             }
+
+        }
+    }
+
+    fun isUserLoggedIn(){ // this may not even be needed
+        userLoggedIn.value = currentLoginSession.value != null
+    }
+
+    private fun getCurrentUser(suId: Int){
+        val job= viewModelScope.launch {
+            suParkRepository.getUserbySUid(suId).collect {
+                currentLoginSession.value = it
+            }
+        }
+        // quite problematic, but keeping it for now, before I can find another way
+        runBlocking {
+            job.join()
         }
     }
 
@@ -76,12 +115,13 @@ class MainViewmodel @Inject constructor(private val suParkRepository: SuParkRepo
             currentLoginSession.value = user
         }*/
         currentLoginSession.value = user
+        currentUserSuId = user.suID
     }
 
     fun userLoginValidate(user: Users) = user in allUsers.value // probably won't need this, validation is done in LoginScreen
 
 
-    fun findAllParkings(){
+    fun findAllParkings(){ // all active parkings of the current user
         viewModelScope.launch(Dispatchers.IO) {
             suParkRepository.getAllParkedCarsBySuId(currentLoginSession.value!!.suID).collect {
                 allParkings.value = it
@@ -111,8 +151,9 @@ class MainViewmodel @Inject constructor(private val suParkRepository: SuParkRepo
 
 
     // first fetch all active parkings from ParkedBy with suId,
-    // then query cars with the cid from ParkedBy
+    // then query cars with the cid from ParkedBy,
 
+    //!!! this is for finding parked CARS!!!, not parkedBYs, use findAllParkings() if you want to fetch all active parkedBys for the current user
     fun fetchAllActiveParkings(){ // this will fetch all active parkings(parked cars) of cars that that can be used by the current user
         var activeParkings: List<ParkedBy> = emptyList()
         val parkedCars: MutableList<Cars> = mutableListOf()
@@ -130,6 +171,10 @@ class MainViewmodel @Inject constructor(private val suParkRepository: SuParkRepo
             }
         }
         allParkedCars.value = parkedCars
+    }
+
+    fun searchDatabase(searchQuery: String){
+
     }
 }
 

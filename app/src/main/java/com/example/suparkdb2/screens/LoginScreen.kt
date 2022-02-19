@@ -1,11 +1,13 @@
 package com.example.suparkdb2.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.suparkdb2.data.Users
 import com.example.suparkdb2.viewmodels.AdminViewModel
@@ -18,6 +20,7 @@ fun LoginScreen(
     viewModel: MainViewmodel,
     adminViewModel: AdminViewModel
 ){
+
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
     var driversLicense by remember { mutableStateOf("")}
@@ -29,7 +32,17 @@ fun LoginScreen(
 
     var suid by remember { mutableStateOf(-1) }
 
-    val onMenuItemClick: (String)->Unit = { it->
+
+    val isLoggedIn by viewModel.userLoggedIn
+
+    LaunchedEffect(key1 = isLoggedIn ){ // this should be changed to check whether the user is admin or user, also implement timed login session,
+        viewModel.isUserLoggedIn()
+        if(isLoggedIn){
+            navigateToHomeScreen()
+        }
+    }
+
+    val onMenuItemClick: (String)->Unit = {
         when(it){
             "Student"->{
                 isStudent = true
@@ -60,6 +73,7 @@ fun LoginScreen(
 
     Column(Modifier
         .fillMaxSize()
+        .background(Color.White)
     ) {
         OutlinedTextField(
             value = name,

@@ -1,4 +1,4 @@
-package com.example.suparkdb2.screens
+package com.example.suparkdb2.screens.admin_screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.suparkdb2.viewmodels.AdminViewModel
 
 @Composable
 fun AdminHomeScreen(

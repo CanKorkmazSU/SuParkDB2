@@ -1,20 +1,20 @@
-package com.example.suparkdb2.screens
+package com.example.suparkdb2.screens.user_screens
 
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.suparkdb2.Navigation.Screen
 import com.example.suparkdb2.data.Users
 import com.example.suparkdb2.viewmodels.MainViewmodel
-import kotlinx.coroutines.flow.MutableStateFlow
 
-// for normal users only, either navigate back to user home screen or to view your parkings screen
+// view parking screen is screen that allows user to see where their cars parked at
 @Composable
-fun DeclareLeavingScreen(
-    navigateToHomeScreen:()->Unit,
-    navigateToViewParkingsScreen: ()->Unit,
-    mainViewmodel: MainViewmodel
-){
+fun DeclareEntranceScreen(navigateToHomePage: ()->Unit, navigateToViewParkingsScreen: ()->Unit, mainViewmodel: MainViewmodel){
+
     val currentLoginSession: MutableState<Users> = remember{ mutableStateOf( mainViewmodel.currentLoginSession.value!!)}
     var plateNo by remember {mutableStateOf("")}
 
@@ -24,6 +24,9 @@ fun DeclareLeavingScreen(
         onValueChange ={plateNo = it}
     )
     Button(onClick = { /*TODO*/ }) {
-        Text(text = "Declare Leaving")
+        Text(text = "Declare Entrance")
     }
+
+    // get cars used by the user that aren't currently parked in any parking areas,
+    //      ->select from
 }

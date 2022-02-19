@@ -1,4 +1,4 @@
-package com.example.suparkdb2.screens
+package com.example.suparkdb2.screens.admin_screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -7,20 +7,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModel
-import com.example.suparkdb2.data.Cars
-import com.example.suparkdb2.data.SuParkRepository
 import com.example.suparkdb2.data.Users
 import com.example.suparkdb2.viewmodels.MainViewmodel
-import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.example.suparkdb2.viewmodels.AdminViewModel
-
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 
 @Composable
@@ -40,8 +30,7 @@ fun AddUserScreen(navController: NavController, viewmodel: MainViewmodel, adminV
     var suid by remember {mutableStateOf(-1)}
 
     Column(modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight(),
+        .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
