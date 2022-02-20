@@ -10,11 +10,16 @@ import androidx.compose.ui.Modifier
 import com.example.suparkdb2.data.Users
 import com.example.suparkdb2.viewmodels.MainViewmodel
 import androidx.navigation.NavController
+import com.example.suparkdb2.screens.RowWithDropDownMenu
 import com.example.suparkdb2.viewmodels.AdminViewModel
 
 
 @Composable
-fun AddUserScreen(navController: NavController, viewmodel: MainViewmodel, adminViewmodel: AdminViewModel){
+fun AddUserScreen(
+    navController: NavController,
+    viewmodel: MainViewmodel,
+    adminViewmodel: AdminViewModel,
+){
 
     var name by remember {mutableStateOf("")}
     var surname by remember {mutableStateOf("")}
@@ -59,7 +64,7 @@ fun AddUserScreen(navController: NavController, viewmodel: MainViewmodel, adminV
             label = { Text(text = "Your Age: ") },
             onValueChange ={age =it.toInt()}
         )
-
+        RowWithDropDownMenu(menuItemOnClick = {})
         Button(
             onClick = {
                 adminViewmodel.

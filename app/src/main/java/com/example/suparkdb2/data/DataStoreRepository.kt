@@ -11,6 +11,7 @@ import javax.inject.Inject
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore("login_session")
 
+// May use savedStateHandle for first version
 @ViewModelScoped
 class DataStoreRepository @Inject constructor(
     @ApplicationContext private val context: Context

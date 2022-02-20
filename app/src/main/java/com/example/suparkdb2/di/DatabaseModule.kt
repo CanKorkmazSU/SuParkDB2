@@ -32,12 +32,6 @@ object DatabaseModule {
     @Provides
     fun provideDAO(database: SuParkDatabase) = database.suParkDao()
 
-    @Singleton
-    @Provides
-    fun provideRepo(
-        dao: SuParkDao
-    ) = SuParkRepository(dao)
-
 }
 /*
 @Module

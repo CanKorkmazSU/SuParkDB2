@@ -6,6 +6,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -73,7 +74,9 @@ fun LoginScreen(
 
     Column(Modifier
         .fillMaxSize()
-        .background(Color.White)
+        .background(Color.White),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         OutlinedTextField(
             value = name,
@@ -101,7 +104,7 @@ fun LoginScreen(
         Button(
             onClick = {
                 val user: Users? = viewModel.findUserBySuId(suid)
-                if (user != null && user.diversLicense == driversLicense) {
+                if (user != null && user.driversLicense == driversLicense) {
                     when (user.isAdmin) {
                         true -> {
                             adminViewModel.onAdminLogin(user)

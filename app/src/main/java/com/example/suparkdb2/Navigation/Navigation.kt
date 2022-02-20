@@ -67,7 +67,7 @@ fun Navigation(navController: NavHostController, mainViewmodel: MainViewmodel, a
         ){
             ParkedCarScreen(
                 navigateToViewParkingsScreen = { navController.navigate(Screen.ViewParkingsScreen.route)},
-                parkedById = it.arguments!!.getInt("parkedById"),
+                carId = it.arguments?.getInt("parkedById") ?: 13,
                 viewModel = mainViewmodel
             )   
         }

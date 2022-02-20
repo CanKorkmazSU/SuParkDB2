@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -17,18 +17,26 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.suparkdb2.data.Cars
 import com.example.suparkdb2.viewmodels.MainViewmodel
 
 // detailed information of where the car is parked at, when it's parked and who parked it.
 // also has a button for declaring leaving
 
-// WHo parked car, is s/he the owner, when it's been parked, Car Model-Age, For how long it's been parked, where it is
+// WHo parked car, is s/he the owner, when it's been parked, Car Model, For how long it's been parked, where it is
 @Composable
 fun ParkedCarScreen(
     navigateToViewParkingsScreen: ()->Unit,
-    parkedById: Int,
+    carId: Int,
     viewModel: MainViewmodel
 ){
+    //top app bar with option to go back to view parkings screen
+    var parkedCar by viewModel.selectedCar
+
+    LaunchedEffect(key1 = carId){
+        viewModel.findCarByCarId(carId)
+    }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -36,15 +44,17 @@ fun ParkedCarScreen(
             .padding(12.dp)
     ) {
         CarInfoCard()
+        // Who parked car card
+        //where and when parked card
+
+        // declare leaving button
     }
 }
 
 
 @Composable
 fun CarInfoCard(
-    carBrand: String ="vw",
-    carModel: String = "golf",
-    carAge: Int = 1920
+    car: Cars = Cars(111, "Volkswagen", "Golf ","35 sjkf 4333",0 )
 ){
     Column(
         Modifier
@@ -67,7 +77,7 @@ fun CarInfoCard(
                     ){
                         append("Car Brand: ")
                     }
-                    append(carBrand)
+                    append(car.brand)
                 }
             )
         }
@@ -88,7 +98,7 @@ fun CarInfoCard(
                     ){
                         append("Car Model: ")
                     }
-                    append(carModel)
+                    append(car.carModel)
                 }
             )
         }
@@ -105,9 +115,9 @@ fun CarInfoCard(
                             fontWeight = FontWeight.Bold
                         )
                     ){
-                        append("Car Age: ")
+                        append("Car Id: ")
                     }
-                    append("$carAge")
+                    append("${car.cid}")
                 }
             )
         }

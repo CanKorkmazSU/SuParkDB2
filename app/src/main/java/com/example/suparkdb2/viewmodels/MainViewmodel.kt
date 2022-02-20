@@ -2,15 +2,13 @@ package com.example.suparkdb2.viewmodels
 
 import android.os.Bundle
 import android.os.LocaleList
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.os.bundleOf
 import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.suparkdb2.data.Cars
-import com.example.suparkdb2.data.ParkedBy
-import com.example.suparkdb2.data.SuParkRepository
-import com.example.suparkdb2.data.Users
+import com.example.suparkdb2.data.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
@@ -58,20 +56,31 @@ class MainViewmodel @Inject constructor(
 
     val allParkedCars: MutableState<List<Cars>> = mutableStateOf(emptyList()) // all parked cars of the user
     val allParkings: MutableState<List<ParkedBy>> = mutableStateOf(emptyList()) // all parkings of the user
+    val allAvailableCars: MutableState<List<Cars>> = mutableStateOf(emptyList())
 
+    val selectedCar: MutableState<Cars?> = mutableStateOf(null) // all parkings of the user
+
+    //var allParkedCarParkingComb: Map<Cars, ParkingAreas>
 
     init {
+        Log.d("main","Main View Model created")
         currentUserSuId?.let { getCurrentUser(it) }
 
         userLoggedIn.value = currentLoginSession.value != null
-
+        var job1: Job? = null
         if(userLoggedIn.value){
-            viewModelScope.launch {
-                findAllParkings()
+            job1 =viewModelScope.launch {
+                val job2 =viewModelScope.launch {
+                    findAllParkings()
+
+                }
+                job2.join()
                 fetchAllActiveParkings() // actually fetchALlActiveParkings does redundant fetching, can be simplified by using allParkings from findAllPaekings()
             }
         }
+
         viewModelScope.launch {
+            job1?.join()
             suParkRepository.getAllUsers().collect {
                 allUsers.value = it
             }
@@ -89,14 +98,10 @@ class MainViewmodel @Inject constructor(
     }
 
     private fun getCurrentUser(suId: Int){
-        val job= viewModelScope.launch {
+        viewModelScope.launch {
             suParkRepository.getUserbySUid(suId).collect {
                 currentLoginSession.value = it
             }
-        }
-        // quite problematic, but keeping it for now, before I can find another way
-        runBlocking {
-            job.join()
         }
     }
 
@@ -120,13 +125,20 @@ class MainViewmodel @Inject constructor(
 
     fun userLoginValidate(user: Users) = user in allUsers.value // probably won't need this, validation is done in LoginScreen
 
-
     fun findAllParkings(){ // all active parkings of the current user
         viewModelScope.launch(Dispatchers.IO) {
             suParkRepository.getAllParkedCarsBySuId(currentLoginSession.value!!.suID).collect {
                 allParkings.value = it
             }
         }
+    }
+    fun findCarByCarId(cid: Int){
+        viewModelScope.launch{
+            suParkRepository.getCarsByCarId(cid).collect {
+                selectedCar.value= it
+            }
+        }
+
     }
 
     fun onDeclareEntranceWithPlateNo(plateNo: String, parkId: Int){
@@ -154,16 +166,16 @@ class MainViewmodel @Inject constructor(
     // then query cars with the cid from ParkedBy,
 
     //!!! this is for finding parked CARS!!!, not parkedBYs, use findAllParkings() if you want to fetch all active parkedBys for the current user
-    fun fetchAllActiveParkings(){ // this will fetch all active parkings(parked cars) of cars that that can be used by the current user
-        var activeParkings: List<ParkedBy> = emptyList()
+    private fun fetchAllActiveParkings(){ // this will fetch all active parkings(parked cars) of cars that that can be used by the current user
+        //var activeParkings: List<ParkedBy> = emptyList()
         val parkedCars: MutableList<Cars> = mutableListOf()
-        viewModelScope.launch(Dispatchers.IO) {
+       /* viewModelScope.launch(Dispatchers.IO) {
             suParkRepository.getAllParkedCarsBySuId(currentLoginSession.value!!.suID).collect{
                 activeParkings = it
             }
-        }
+        }*/
         // implement .join() between these two, it can be problematic
-        for(parking in activeParkings){
+        for(parking in allParkings.value){
             viewModelScope.launch(Dispatchers.IO) {
                 suParkRepository.getCarsByCarId(parking.cid).collect{
                     parkedCars.add(it)
@@ -173,8 +185,20 @@ class MainViewmodel @Inject constructor(
         allParkedCars.value = parkedCars
     }
 
-    fun searchDatabase(searchQuery: String){
-
+    fun fetchAllAvailableCars(){
+        val availableCars = allCars.value.subtract(allParkedCars.value.toSet()).toList()
+        allAvailableCars.value = availableCars
+    }
+    fun getAllCarParkingAreaComb(): MutableMap<Cars, ParkingAreas>{ // users's cars(cid), user's parkedBys(cid, suid, pid)
+        val parkedCarParkingArea: MutableMap<Cars, ParkingAreas> = mutableMapOf()
+        viewModelScope.launch {
+            for(car in allParkedCars.value){
+                 suParkRepository.getActiveParkingAreaForCar(car.cid).collect {
+                     parkedCarParkingArea[car] = it
+                 }
+            }
+        }
+        return parkedCarParkingArea
     }
 }
 

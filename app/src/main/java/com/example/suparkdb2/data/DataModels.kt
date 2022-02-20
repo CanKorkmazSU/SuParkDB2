@@ -2,6 +2,8 @@ package com.example.suparkdb2.data
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.ForeignKey.CASCADE
+import androidx.room.ForeignKey.SET_NULL
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.sql.Date
@@ -11,7 +13,7 @@ import java.sql.Time
 data class Users(
     val name: String,
     val surname: String,
-    val diversLicense: String,
+    val driversLicense: String,
     val age: Int,
     @PrimaryKey val suID: Int,
     val isOwner: Boolean,
@@ -49,9 +51,9 @@ data class ParkingAreas(
 )
 
 @Entity(tableName = "parked_by", foreignKeys = [
-    ForeignKey(entity = Users::class, parentColumns = ["suID"], childColumns = ["suID"]),
-    ForeignKey(entity = Cars::class, parentColumns = ["cid"], childColumns = ["cid"] ),
-    ForeignKey(entity = ParkingAreas::class, parentColumns = ["pid"], childColumns = ["parkId"])
+    ForeignKey(entity = Users::class, parentColumns = ["suID"], childColumns = ["suID"], onDelete = SET_NULL, onUpdate = CASCADE),
+    ForeignKey(entity = Cars::class, parentColumns = ["cid"], childColumns = ["cid"], onDelete = SET_NULL, onUpdate = CASCADE ),
+    ForeignKey(entity = ParkingAreas::class, parentColumns = ["pid"], childColumns = ["parkId"],onDelete = SET_NULL, onUpdate = CASCADE)
 ])
 data class ParkedBy(
     val suID: Int,
@@ -63,7 +65,7 @@ data class ParkedBy(
 )
 
 @Entity(tableName = "car_sticker", foreignKeys = [
-    ForeignKey(entity = Cars::class, parentColumns = ["cid"], childColumns = ["carId"]),
+    ForeignKey(entity = Cars::class, parentColumns = ["cid"], childColumns = ["carId"], onDelete = CASCADE, onUpdate = CASCADE),
 ])
 data class CarSticker(
     val carId: Int,

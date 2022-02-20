@@ -15,7 +15,8 @@ fun DeclareLeavingScreen(
     navigateToViewParkingsScreen: ()->Unit,
     mainViewmodel: MainViewmodel
 ){
-    val currentLoginSession: MutableState<Users> = remember{ mutableStateOf( mainViewmodel.currentLoginSession.value!!)}
+    val currentLoginSession by mainViewmodel.currentLoginSession
+
     var plateNo by remember {mutableStateOf("")}
 
     OutlinedTextField(value = plateNo,

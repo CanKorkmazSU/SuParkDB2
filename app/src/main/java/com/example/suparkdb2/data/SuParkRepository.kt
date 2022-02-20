@@ -17,6 +17,8 @@ class SuParkRepository @Inject constructor(private val suParkDao: SuParkDao) {
     suspend fun getLocationByCarId(carId: Int) = suParkDao.getLocationByCarId(carId)
     suspend fun getParkingAreaByPid(parkId: Int) = suParkDao.getParkingAreaByParkId(parkId)
     suspend fun getAllParkedCarsBySuId(suId: Int) = suParkDao.getAllParkedCarsBySuId(suId)
+    suspend fun getAllParkedCars() =suParkDao.getAllParkedCars()
+    suspend fun getActiveParkingAreaForCar(cid: Int) = suParkDao.getActiveParkingAreaForCar(cid)
 
     fun addUser(user: Users) = suParkDao.addUser(user)
     fun addCar(car: Cars) = suParkDao.addCar(car)
