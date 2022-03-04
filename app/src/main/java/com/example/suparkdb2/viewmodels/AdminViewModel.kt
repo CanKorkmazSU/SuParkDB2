@@ -7,10 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.suparkdb2.data.Cars
-import com.example.suparkdb2.data.ParkingAreas
-import com.example.suparkdb2.data.SuParkRepository
-import com.example.suparkdb2.data.Users
+import com.example.suparkdb2.data.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +17,11 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class AdminViewModel @Inject constructor(private val suParkRepository: SuParkRepository, private val state: SavedStateHandle): ViewModel(){
+class AdminViewModel @Inject constructor(
+    private val suParkRepository: SuParkRepository,
+    private val state: SavedStateHandle,
+    private val storeRepository: DataStoreRepository
+): ViewModel(){
 
     private var allUsers: MutableStateFlow<List<Users>> = MutableStateFlow(emptyList())
     var allCars: MutableStateFlow<List<Cars>> = MutableStateFlow(emptyList())

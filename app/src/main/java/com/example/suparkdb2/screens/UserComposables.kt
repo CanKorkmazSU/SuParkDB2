@@ -42,19 +42,30 @@ fun RowWithDropDownMenu(
             drawCircle(color = Color.Cyan)
         }
         DropdownMenu(expanded = expandedState, onDismissRequest = { expandedState = false }) {
-            DropdownMenuItem(onClick = { menuItemOnClick("Student") }) {
+            DropdownMenuItem(onClick = {
+                menuItemOnClick("Student")
+                expandedState =false
+            }) {
                 Text("Student")
             }
-            DropdownMenuItem(onClick = { menuItemOnClick("Faculty Member") }) {
+            DropdownMenuItem(onClick = {
+                menuItemOnClick("Faculty Member")
+                expandedState =false
+            }) {
                 Text("Faculty Member")
             }
-            DropdownMenuItem(onClick = { menuItemOnClick("Personnel") }) {
+            DropdownMenuItem(onClick = {
+                menuItemOnClick("Personnel")
+                expandedState =false
+            }) {
                 Text("Personnel")
             }
-            DropdownMenuItem(onClick = { menuItemOnClick("Admin") }) {
+            DropdownMenuItem(onClick = {
+                menuItemOnClick("Admin")
+                expandedState =false
+            }) {
                 Text("Admin")
             }
-
         }
     }
 }
@@ -64,4 +75,15 @@ fun RowWithDropDownMenu(
 fun DropDownMenuMePreview(){
     val it1 = "yes"
     RowWithDropDownMenu(menuItemOnClick = { print(it1)} )
+}
+
+@Composable
+fun SimpleTopAppBar(
+    title: String
+){ // Simple top app bar for homescreen and viewparkingsscreen
+    TopAppBar(
+        title = {
+            Text(text = title)
+        }
+    )
 }

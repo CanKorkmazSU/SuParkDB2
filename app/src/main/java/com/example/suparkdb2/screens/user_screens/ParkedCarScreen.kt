@@ -22,6 +22,7 @@ import com.example.suparkdb2.viewmodels.MainViewmodel
 
 // detailed information of where the car is parked at, when it's parked and who parked it.
 // also has a button for declaring leaving
+                        // ViewParkingScreen --> This screen
 
 // WHo parked car, is s/he the owner, when it's been parked, Car Model, For how long it's been parked, where it is
 @Composable
@@ -78,7 +79,8 @@ fun CarInfoCard(
                         append("Car Brand: ")
                     }
                     append(car.brand)
-                }
+                },
+                Modifier.padding(start = 4.dp)
             )
         }
         Surface(
@@ -99,7 +101,8 @@ fun CarInfoCard(
                         append("Car Model: ")
                     }
                     append(car.carModel)
-                }
+                },
+                Modifier.padding(start = 4.dp)
             )
         }
         Surface(
@@ -118,7 +121,9 @@ fun CarInfoCard(
                         append("Car Id: ")
                     }
                     append("${car.cid}")
-                }
+                },
+                Modifier.padding(start = 4.dp)
+
             )
         }
     }

@@ -9,7 +9,7 @@ sealed class Screen(val route: String){
     object AdminHomeScreen: Screen("admin_home_screen")
     object DeclareleavingScreen: Screen("declare_leaving_screen")
     object LoginScreen: Screen("login_screen")
-
+    object UserViewAllCarsScreen: Screen("user_view_all_cars_screen")
     object ParkedCarScreen: Screen("parked_car_screen")
     object FindCarScreen: Screen("find_car_screen")
 

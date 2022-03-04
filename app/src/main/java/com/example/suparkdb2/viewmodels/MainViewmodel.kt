@@ -1,23 +1,18 @@
 package com.example.suparkdb2.viewmodels
 
-import android.os.Bundle
-import android.os.LocaleList
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.os.bundleOf
 import androidx.lifecycle.*
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.suparkdb2.data.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.filter
 import java.time.LocalDateTime
 import javax.inject.Inject
-import kotlin.time.Duration
 
 /* this viewmodel should
 * only be used for user functionalites
@@ -31,26 +26,16 @@ import kotlin.time.Duration
 @HiltViewModel
 class MainViewmodel @Inject constructor(
     private val suParkRepository: SuParkRepository,
-    private val state: SavedStateHandle
+    private val state: SavedStateHandle,
+    private val storeRepository: DataStoreRepository
 ): ViewModel() {
 
     private var allUsers: MutableStateFlow<List<Users>> = MutableStateFlow(emptyList())// all users in the database
     private var allCars: MutableStateFlow<List<Cars>> = MutableStateFlow(emptyList())// all cars in the database
+    var allCarsOfCurrentUser: MutableState<List<Cars>> = mutableStateOf(emptyList())
 
-    /*var currentLoginSession: MutableLiveData<Users> = state.getLiveData("current_login_session")
-        set(value){
-            field = value
-            state["current_login_session"] = value
-        }
-   ;*/
 
-    private var currentUserSuId: Int? = state["current_login_suid"]
-        set(value){
-            field = value
-            state["current_login_suid"] = value
-        }
-    ;
-
+    private var currentUserSuId: MutableStateFlow<Int> = MutableStateFlow(0)
     var currentLoginSession: MutableState<Users?> = mutableStateOf(null)
     val userLoggedIn: MutableState<Boolean> = mutableStateOf(false)
 
@@ -64,32 +49,61 @@ class MainViewmodel @Inject constructor(
 
     init {
         Log.d("main","Main View Model created")
-        currentUserSuId?.let { getCurrentUser(it) }
 
-        userLoggedIn.value = currentLoginSession.value != null
-        var job1: Job? = null
+        viewModelScope.launch(Dispatchers.IO){
+            Log.d("main","inside viewmodel coroutine scope 1")
+            val job1 =viewModelScope.launch(Dispatchers.IO){
+                readSuId()
+            }
+            Log.d("main","inside viewmodel coroutine scope 2: --> ${currentUserSuId.value}}")
+            viewModelScope.launch(Dispatchers.IO) {
+                delay(500)
+                if(currentUserSuId.value != 0){
+                    getCurrentUser(currentUserSuId.value)
+                }
+            }
+
+
+        }
+        isUserLoggedIn()
+        Log.d("main", "  user logged in : ${userLoggedIn.value}")
+
+
         if(userLoggedIn.value){
-            job1 =viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 val job2 =viewModelScope.launch {
                     findAllParkings()
-
                 }
-                job2.join()
-                fetchAllActiveParkings() // actually fetchALlActiveParkings does redundant fetching, can be simplified by using allParkings from findAllPaekings()
+                //job2.join()
+                fetchAllActiveParkings() // actually fetchALlActiveParkings does redundant fetching, can be simplified by using allParkings from findAllPaerings()
             }
         }
 
-        viewModelScope.launch {
-            job1?.join()
+        viewModelScope.launch(Dispatchers.IO) {
             suParkRepository.getAllUsers().collect {
                 allUsers.value = it
             }
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             suParkRepository.getAllCars().collect{
                 allCars.value = it
             }
+        }
+    }
 
+    fun clearCurrentLogin(){
+        currentUserSuId.value = 0
+        userLoggedIn.value = false
+        currentLoginSession.value= null
+        viewModelScope.launch(Dispatchers.IO) {
+            storeRepository.clearAllData()
+        }
+    }
+
+    private suspend fun readSuId(){
+        storeRepository.suIdKeyFlow.collect {
+            currentUserSuId.value = it
+            Log.d("main", "current user su id flow: ${currentUserSuId.value}")
         }
     }
 
@@ -98,21 +112,12 @@ class MainViewmodel @Inject constructor(
     }
 
     private fun getCurrentUser(suId: Int){
-        viewModelScope.launch {
-            suParkRepository.getUserbySUid(suId).collect {
-                currentLoginSession.value = it
-            }
-        }
+        currentLoginSession.value =suParkRepository.getUserbySUid(suId)
     }
 
-    fun findUserBySuId(suId: Int): Users?{
-        var user: Users? = null
-        viewModelScope.launch {
-            suParkRepository.getUserbySUid(suId).collect {
-                user = it
-            }
-        }
-        return user
+    fun findUserBySuId(suId: Int): Users? {
+
+        return suParkRepository.getUserbySUid(suId)
     }
 
     fun onLogin(user: Users){
@@ -120,7 +125,11 @@ class MainViewmodel @Inject constructor(
             currentLoginSession.value = user
         }*/
         currentLoginSession.value = user
-        currentUserSuId = user.suID
+        currentUserSuId.value = user.suID
+        viewModelScope.launch {
+            storeRepository.persistSuId(currentUserSuId.value)
+            isUserLoggedIn()
+        }
     }
 
     fun userLoginValidate(user: Users) = user in allUsers.value // probably won't need this, validation is done in LoginScreen
@@ -133,7 +142,7 @@ class MainViewmodel @Inject constructor(
         }
     }
     fun findCarByCarId(cid: Int){
-        viewModelScope.launch{
+        viewModelScope.launch(Dispatchers.IO){
             suParkRepository.getCarsByCarId(cid).collect {
                 selectedCar.value= it
             }
@@ -191,7 +200,7 @@ class MainViewmodel @Inject constructor(
     }
     fun getAllCarParkingAreaComb(): MutableMap<Cars, ParkingAreas>{ // users's cars(cid), user's parkedBys(cid, suid, pid)
         val parkedCarParkingArea: MutableMap<Cars, ParkingAreas> = mutableMapOf()
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             for(car in allParkedCars.value){
                  suParkRepository.getActiveParkingAreaForCar(car.cid).collect {
                      parkedCarParkingArea[car] = it
@@ -200,5 +209,15 @@ class MainViewmodel @Inject constructor(
         }
         return parkedCarParkingArea
     }
+
+    // this should get all cars that can be used or owned by the current user
+    fun getAllCarsOfAUser(){
+        viewModelScope.launch(Dispatchers.IO) {
+            suParkRepository.getCarsOfASingleUser(currentUserSuId.value).collect {
+                allCarsOfCurrentUser.value = it
+            }
+        }
+    }
+
 }
 

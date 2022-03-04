@@ -1,11 +1,9 @@
 package com.example.suparkdb2.screens.user_screens
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,15 +36,20 @@ fun DeclareEntranceScreen(
     LaunchedEffect(key1 = allAvaiableCars){
         mainViewmodel.fetchAllAvailableCars()
     }
+    Column(
+        Modifier.fillMaxSize().background(Color.White),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-    SelectAvailabeCarDropDown(
-        onCarSelected = {},
-        carsToList = allAvaiableCars
-    )
-    Button(onClick = { /*TODO*/ }) {
-        Text(text = "Declare Entrance")
+        SelectAvailabeCarDropDown(
+            onCarSelected = {},
+            carsToList = allAvaiableCars
+        )
+        Button(onClick = { /*TODO*/ }) {
+            Text(text = "Declare Entrance")
+        }
     }
-
     // get cars used by the user that aren't currently parked in any parking areas,
     //      ->select from
 }

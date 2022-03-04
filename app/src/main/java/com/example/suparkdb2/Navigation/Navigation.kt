@@ -6,7 +6,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.suparkdb2.screens.LoginScreen
 import com.example.suparkdb2.screens.admin_screens.AddUserScreen
+import com.example.suparkdb2.screens.admin_screens.AdminHomeScreen
 import com.example.suparkdb2.screens.user_screens.*
 import com.example.suparkdb2.viewmodels.AdminViewModel
 import com.example.suparkdb2.viewmodels.MainViewmodel
@@ -15,13 +17,29 @@ import com.example.suparkdb2.viewmodels.MainViewmodel
 @Composable
 fun Navigation(navController: NavHostController, mainViewmodel: MainViewmodel, adminViewModel: AdminViewModel){
     NavHost(navController = navController , startDestination = Screen.LoginScreen.route) {
+        composable(Screen.LoginScreen.route) {
+            LoginScreen(navigateToHomeScreen = { navController.navigate(Screen.HomeScreen.route)},
+                navigateToAdminHomeScreen = { navController.navigate(Screen.AdminHomeScreen.route)},
+                viewModel = mainViewmodel,
+                adminViewModel = adminViewModel )
+        }
+
         composable(Screen.HomeScreen.route) {
             HomeScreen(
-                {},
+                {navController.navigate(Screen.LoginScreen.route)},
+                {navController.navigate(Screen.UserViewAllCarsScreen.route)},
                 {navController.navigate(Screen.ViewParkingsScreen.route)},
                 {navController.navigate(Screen.DeclareEntranceScreen.route)},
                 {navController.navigate(Screen.DeclareleavingScreen.route)},
                 mainViewmodel
+            )
+        }
+        composable(Screen.AdminHomeScreen.route) {
+            AdminHomeScreen(
+                {},
+                {},
+                {},
+                {}
             )
         }
         composable(Screen.AddNewUserScreen.route){
@@ -59,6 +77,12 @@ fun Navigation(navController: NavHostController, mainViewmodel: MainViewmodel, a
                 } },
                 navigateToParkedCarScreen = { navController.navigate(Screen.ParkedCarScreen.route) },
                 viewmodel = mainViewmodel
+            )
+        }
+        composable(Screen.UserViewAllCarsScreen.route){
+            UserViewAllCarsScreen(
+                {navController.navigate(Screen.HomeScreen.route)},
+                mainViewmodel
             )
         }
         composable(

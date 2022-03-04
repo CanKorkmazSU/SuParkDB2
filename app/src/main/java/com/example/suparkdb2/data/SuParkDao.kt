@@ -10,7 +10,7 @@ interface SuParkDao {
      fun getAllUsers(): Flow<List<Users>>
 
     @Query("Select * from users where suID= :suid")
-     fun getUserbySuid(suid: Int): Flow<Users>
+     fun getUserbySuid(suid: Int): Users?
 
     @Query("Select * from cars")
      fun getAllCars(): Flow<List<Cars>>
@@ -50,7 +50,9 @@ interface SuParkDao {
     @Query("Select * from used_by where userSuId = :userSuId") // get a single user-car combinations for a single user with unique id (primary key)
      fun getSingleUserWithCarsComb(userSuId: Int): Flow<List<UsedBy>> // !!! this query is unnecessary in production release !!!
 
-    @Query("Select * from cars where  cars.cid in (Select cid from used_by where ownerSuId = :userSuId and cars.cid = used_by.cid)") // get a single  combinations for a single user with unique id (primary key)
+     @Transaction
+    @Query("Select * from cars where  cars.cid in (Select cid from used_by where ownerSuId = :userSuId " +
+            "and cars.cid = used_by.cid)") // get a single  combinations for a single user with unique id (primary key)
      fun getCarsofASingleUser(userSuId: Int): Flow<List<Cars>>
 
     @Query("Select * from parked_by where leavingDateTime is null and cid in (Select cid From used_by where suID = :userSuId) ") // get all cars that are also used or owned by userSuId that are parked in SuCampus
